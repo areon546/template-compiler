@@ -4,7 +4,6 @@ import (
 	"io/fs"
 
 	"github.com/areon546/go-files/files"
-	"github.com/areon546/go-helpers/helpers"
 )
 
 func CompileTemplates(contentDir, templateDir string) {
@@ -26,6 +25,7 @@ func compileTemplatesRec(contentDir, templateDir string) {
 	print(content)
 
 	for _, dirEntry := range content {
+		print()
 		print("entry: ", dirEntry)
 
 		if dirEntry.IsDir() {
@@ -40,25 +40,26 @@ func compileTemplatesRec(contentDir, templateDir string) {
 
 func handleSubdirectory(contentDir, templateDir string, directory fs.DirEntry) {
 	name := directory.Name()
-	newContent := contentDir
-	newTemplates := templateDir
+	newContent := contentDir + "/" + name
+	newTemplates := templateDir + "/" + name
 
 	print("directory ", name, newContent, newTemplates)
-	// compileTemplatesRec(newContent, newTemplates)
+	compileTemplatesRec(newContent, newTemplates)
 }
 
 func handleFile(content, templates []fs.DirEntry, file fs.DirEntry) {
-	print("file ", file.Name())
+	name := file.Name()
+	newContent := contentDir
+	newTemplates := templateDir
+
+	print("file: ", name, newContent, newTemplates)
+
 	// since it is a file, we want to:
 	// check for special cases
 	//
 	// generate template
 	//
 	// write html file to output directory
-}
-
-func print(a ...any) {
-	helpers.Print(a...)
 }
 
 //
