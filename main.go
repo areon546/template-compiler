@@ -1,33 +1,26 @@
 package main
 
 import (
-	"github.com/areon546/go-files/files"
-	"github.com/areon546/go-helpers/helpers"
+	"flag"
+	"os"
 )
 
-type Library struct {
-	Message string
-}
+// set defaults for now defaults, which would normally be set by arguments
+var (
+	templateDir string = "../templates"
+	contentDir  string = "../content"
+	outputDir   string = "../docs"
+)
 
 func main() {
-	print(("." + "asd"))
+	// check args
 
-	readCSV()
-}
+	print("args: ", os.Args)
 
-// Reads the rankings csv file
-func readCSV() {
-	// This will read the csv rankings.csv and write them to the sqlite database.
-	rankings := files.ReadCSV("../rankings")
+	// declare flags to use
+	flag.StringVar(&templateDir, "t", templateDir, "Specify template directory. Default is "+templateDir)
 
-	helpers.Print(rankings.GetContents())
-}
+	flag.Parse()
 
-func processTemplates() {
-	// This will read the templates folder, execute them, and write them into the `docs` folder
-}
-
-// Opens a specified template based on the name, and return it's contents
-func openTemplate(filename string) {
-
+	CompileTemplates(contentDir, templateDir)
 }
