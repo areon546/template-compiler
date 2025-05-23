@@ -29,5 +29,5 @@ func main() {
 
 	helpers.Print(templateDir, contentDir, outputDir)
 
-	CompileTemplates(contentDir, templateDir)
+	CompileTemplates()
 }
