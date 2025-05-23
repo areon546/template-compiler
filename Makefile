@@ -1,6 +1,6 @@
 run:
 	go build
-	./template-compiler	-o documents
+	./template-compiler
 
 test:
 	go test -cover

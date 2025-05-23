@@ -47,7 +47,7 @@ func handleSubdirectory(contentDir, templateDir string, directory fs.DirEntry) {
 	compileTemplatesRec(newContent, newTemplates)
 }
 
-func handleFile(content, templates []fs.DirEntry, file fs.DirEntry) {
+func handleFile(contentDir, templateDir []fs.DirEntry, file fs.DirEntry) {
 	name := file.Name()
 	newContent := contentDir
 	newTemplates := templateDir
