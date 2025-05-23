@@ -9,6 +9,13 @@ import (
 
 func CompileTemplates(contentDir, templateDir string) {
 	// read contents of template and content directories
+
+	// crawl the content files and directories
+	compileTemplatesRec(contentDir, templateDir)
+}
+
+// Crawls through the contents directory and compiles html files based on that.
+func compileTemplatesRec(contentDir, templateDir string) {
 	templates := files.ReadDirectory(templateDir)
 	content := files.ReadDirectory(contentDir)
 
@@ -18,35 +25,30 @@ func CompileTemplates(contentDir, templateDir string) {
 	print(contentDir)
 	print(content)
 
-	// crawl the content files and directories
-	compileTemplatesRec(".", content, templates)
-}
-
-// Crawls through the contents directory and compiles html files based on that.
-func compileTemplatesRec(path string, content, templates []fs.DirEntry) {
 	for _, dirEntry := range content {
-		print(dirEntry)
+		print("entry: ", dirEntry)
 
 		if dirEntry.IsDir() {
 			// if is a directory, then hanlde it recursively
-			handleSubdirectory("", content, templates, dirEntry) // TODO: implement path
+			handleSubdirectory(contentDir, templateDir, dirEntry)
 		} else if !dirEntry.IsDir() {
 			// if is a file, then handle it
-			handleFile("", content, templates, dirEntry)
+			handleFile(content, templates, dirEntry)
 		}
 	}
 }
 
-func handleSubdirectory(path string, content, templates []fs.DirEntry, directory fs.DirEntry) {
-	newContent := content // TODO: make it read the specific directory we want to look at
-	newTemplates := templates
+func handleSubdirectory(contentDir, templateDir string, directory fs.DirEntry) {
+	name := directory.Name()
+	newContent := contentDir
+	newTemplates := templateDir
 
-	print(directory, newContent, newTemplates)
-
+	print("directory ", name, newContent, newTemplates)
 	// compileTemplatesRec(newContent, newTemplates)
 }
 
-func handleFile(path string, content, templates []fs.DirEntry, file fs.DirEntry) {
+func handleFile(content, templates []fs.DirEntry, file fs.DirEntry) {
+	print("file ", file.Name())
 	// since it is a file, we want to:
 	// check for special cases
 	//
