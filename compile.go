@@ -7,25 +7,9 @@ import (
 )
 
 var (
-	specialCases   map[string]handler = map[string]handler{"index.html": indexHandler}
-	directoryRoots map[string]string  = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
+	specialCases   map[string]templateHandler = map[string]templateHandler{"index.html": indexHandler}
+	directoryRoots map[string]string          = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
 )
-
-type handler func(string, fs.DirEntry)
-
-func indexHandler(path string, file fs.DirEntry) {
-	// copy file to exact relative path in output directory
-
-	pathToFile := "/" + path + file.Name()
-	openFile := files.OpenFile(directoryRoots["content"] + pathToFile)
-	print(openFile, pathToFile)
-
-	fileToWriteTo := files.NewFile(directoryRoots["output"] + pathToFile)
-
-	fileToWriteTo.Write(openFile.Contents())
-	print("Wrote to file", fileToWriteTo)
-	// log(pathToFile)
-}
 
 // ~~~~
 
