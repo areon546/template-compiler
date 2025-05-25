@@ -9,9 +9,10 @@ import (
 
 // set defaults for now defaults, which would normally be set by arguments
 var (
-	templateDir string = "templates"
-	contentDir  string = "content"
-	outputDir   string = "docs"
+	templateDir      string = "templates"
+	contentDir       string = "content"
+	outputDir        string = "docs"
+	templateFileType string = "tpl"
 )
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 	flag.StringVar(&templateDir, "t", templateDir, "Specify template directory. ")
 	flag.StringVar(&contentDir, "c", contentDir, "Specify content directory. The content directory contains Markdown files which get inserted into templates. ")
 	flag.StringVar(&outputDir, "o", outputDir, "Specify output directory. The output directory contains compiled html files. ")
+	flag.StringVar(&templateFileType, "s", templateFileType, "Specify the file type suffix for template files. ")
 
 	flag.Parse()
 

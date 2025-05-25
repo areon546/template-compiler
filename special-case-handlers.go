@@ -12,16 +12,28 @@ var ErrIncorrectHandler error = errors.New("special case: handler given incorrec
 
 // A template handler will perform a certain actions on a specific type of file.
 // A handler returns ErrIncorrectHandler with information about the filename and the check requested by the handler.
-type templateHandler func(string, fs.DirEntry)
+type TemplateHandler func(path, name string) error
 
-// NOTE: Path needs to ends with a /
-func indexHandler(path string, file fs.DirEntry) error {
+type handler struct {
+	handle TemplateHandler
+	regex  string
+}
+
+func NewHandler(handlerFunction TemplateHandler, regex string) *handler {
+	return &handler{handle: handlerFunction, regex: regex}
+}
+
+func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	name := file.Name()
-	_, err := checkHandlerMatch("index.html", name)
-	if errors.As(err, ErrIncorrectHandler) {
+	_, err = checkHandlerMatch("index.html", name)
+	if err != nil {
 		return err
 	}
+	return handler.handle(path, name)
+}
 
+// NOTE: Path needs to ends with a /
+func indexHandler(path, name string) error {
 	// copy file to exact relative path in output directory
 	pathToFile := "/" + path + name
 	openFile := files.OpenFile(directoryRoots["content"] + pathToFile)
@@ -29,7 +41,7 @@ func indexHandler(path string, file fs.DirEntry) error {
 
 	fileToWriteTo := files.NewFile(directoryRoots["output"] + pathToFile)
 
-	_, err = fileToWriteTo.Write(openFile.Contents())
+	_, err := fileToWriteTo.Write(openFile.Contents())
 	handle(err)
 
 	print("Wrote to file", fileToWriteTo)

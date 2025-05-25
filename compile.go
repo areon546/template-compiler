@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	specialCases   map[string]templateHandler = map[string]templateHandler{"index.html": indexHandler}
-	directoryRoots map[string]string          = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
+	specialCases   map[string]handler = map[string]handler{"index.html": *NewHandler(indexHandler, "index.html")}
+	directoryRoots map[string]string  = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
 )
 
 // ~~~~
@@ -70,7 +70,9 @@ func handleFile(path string, file fs.DirEntry) {
 	if ok {
 		// run it's special case handler
 		print("special case", name)
-		specialCaseHandler(path, file)
+		err := specialCaseHandler.handleFile(path, file)
+
+		handle(err)
 	} else {
 		// compile it's template, and then write it to the output directory
 		compileFile(path, file)
