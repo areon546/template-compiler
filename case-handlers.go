@@ -32,6 +32,22 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	return handler.handle(path, name)
 }
 
+func populateCaseHandlers() (handlerMap map[string]handler) {
+	handlerMap = map[string]handler{}
+
+	handlerMap["index.html"] = *NewHandler(indexHandler, "index.html")
+
+	handlerMap["default"] = *NewHandler(markdownHandler, "*.md")
+
+	return handlerMap
+}
+
+func AddCaseHandler(key string, newHandler handler) {
+	templateCases[key] = newHandler
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~ Handlers
+
 // NOTE: Path needs to ends with a /
 func indexHandler(path, name string) error {
 	// copy file to exact relative path in output directory
@@ -46,6 +62,10 @@ func indexHandler(path, name string) error {
 
 	print("Wrote to file", fileToWriteTo)
 	// log(pathToFile)
+	return nil
+}
+
+func markdownHandler(path, name string) error {
 	return nil
 }
 

@@ -1,13 +1,15 @@
 package main
 
 import (
+	"errors"
 	"io/fs"
 
 	"github.com/areon546/go-files/files"
+	"github.com/areon546/go-helpers/helpers"
 )
 
 var (
-	specialCases   map[string]handler = map[string]handler{"index.html": *NewHandler(indexHandler, "index.html")}
+	templateCases  map[string]handler = populateCaseHandlers()
 	directoryRoots map[string]string  = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
 )
 
@@ -65,12 +67,22 @@ func handleFile(path string, file fs.DirEntry) {
 	// since it is a file, we want to:
 	// check for special cases
 
-	specialCaseHandler, ok := specialCases[name]
+	caseHandler, ok := templateCases[name]
+	// if the key
+	for _, handler := range templateCases {
+		err := handler.handleFile(path, file)
+		if !errors.Is(err, ErrIncorrectHandler) {
+			helpers.HandleExcept(err, ErrIncorrectHandler)
+		} else {
+			continue
+		}
+	}
+
 	// If the key refers to a special case:
 	if ok {
 		// run it's special case handler
 		print("special case", name)
-		err := specialCaseHandler.handleFile(path, file)
+		err := caseHandler.handleFile(path, file)
 
 		handle(err)
 	} else {
