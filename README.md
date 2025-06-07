@@ -16,7 +16,7 @@ The template system looks at files with the `gohtml` extension.
 
 The content displayed is based off of markdown files that are present in the `content` directory
 
-~~~
+~~~md
 The command will read the files in the template directory specified (or `templates`) and will perform actions based on them.
 
 Special files:
@@ -46,3 +46,5 @@ Otherwise I will have to be a bit smarter with my code.
     - types of special templates:
       - index.html
       -
+
+~~~

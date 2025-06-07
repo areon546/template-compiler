@@ -2,13 +2,18 @@ package main
 
 import (
 	"errors"
+	"html/template"
 	"io/fs"
+	"os"
 	"regexp"
 
 	"github.com/areon546/go-files/files"
 )
 
-var ErrIncorrectHandler error = errors.New("special case: handler given incorrect file type")
+var (
+	ErrIncorrectHandler  error = errors.New("special case: handler given incorrect file type")
+	ErrIncorrectFileType error = ErrIncorrectHandler
+)
 
 // A template handler will perform a certain actions on a specific type of file.
 // A handler returns ErrIncorrectHandler with information about the filename and the check requested by the handler.
@@ -23,12 +28,16 @@ func NewHandler(handlerFunction TemplateHandler, regex string) *handler {
 	return &handler{handle: handlerFunction, regex: regex}
 }
 
+// NOTE: Path needs to ends with a /
 func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	name := file.Name()
-	_, err = checkHandlerMatch("index.html", name)
+	match, err := checkHandlerMatch(handler.regex, name)
+	debug("handler match", file, handler.regex, match)
+
 	if err != nil {
 		return err
 	}
+
 	return handler.handle(path, name)
 }
 
@@ -37,7 +46,7 @@ func populateCaseHandlers() (handlerMap map[string]handler) {
 
 	handlerMap["index.html"] = *NewHandler(indexHandler, "index.html")
 
-	handlerMap["default"] = *NewHandler(markdownHandler, "*.md")
+	handlerMap["markdown"] = *NewHandler(markdownHandler, "[.]*\\.md") // [.]*\.md initially
 
 	return handlerMap
 }
@@ -46,34 +55,92 @@ func AddCaseHandler(key string, newHandler handler) {
 	templateCases[key] = newHandler
 }
 
+func writeToOutputPath(out *files.File, content []byte) (err error) {
+	_, err = out.Write(content)
+	if err != nil {
+		debug("Wrote to file: ", out)
+	}
+
+	return
+}
+
+func CreateOutputFile(internalPathToFile string) (out *files.File) {
+	pathToWriteTo := directoryRoots["output"] + internalPathToFile
+
+	out = files.NewFile(pathToWriteTo)
+
+	return
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
 
-// NOTE: Path needs to ends with a /
 func indexHandler(path, name string) error {
 	// copy file to exact relative path in output directory
 	pathToFile := "/" + path + name
 	openFile := files.OpenFile(directoryRoots["content"] + pathToFile)
-	print(openFile, pathToFile)
+	debug("index handler: ", openFile, pathToFile)
 
-	fileToWriteTo := files.NewFile(directoryRoots["output"] + pathToFile)
-
-	_, err := fileToWriteTo.Write(openFile.Contents())
-	handle(err)
-
-	print("Wrote to file", fileToWriteTo)
-	// log(pathToFile)
-	return nil
+	outputFile := CreateOutputFile(pathToFile)
+	_, err := outputFile.Write(openFile.Contents())
+	return err
 }
 
-func markdownHandler(path, name string) error {
-	return nil
+// Reads the markdown file and converts it's content to HTML content in memory.
+// Create a file at the output directory with the same internal path and
+// Then populates the respective template with the content.
+func markdownHandler(path, name string) (err error) {
+	print("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
+	defer print("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
+
+	// open contents
+	contentFile := newContent(path, name)
+
+	newName, err := replaceMDExtensionWith(name, "html")
+	if err != nil {
+		return err
+	}
+
+	// creating new output file
+	pathToFile := "/" + path + newName
+	fileToWriteTo := CreateOutputFile(pathToFile)
+
+	// parse template
+	templateName := templateDir + "/" + path + "template." + templateFileType
+	print("template name", templateName)
+
+	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
+	return err
 }
 
 // ~~
 
+// TODO: fix template insertion, for some reason it doesn't insert into the template provided properly
+func insertIntoTemplate(templateName string, outputFile *files.File, content content) (err error) {
+	print("\n			attempting to insert into: ", outputFile.String())
+	defer print("			after template execution\n")
+	print(templateName, outputFile, content)
+
+	tpl, err := template.ParseFiles(templateName)
+	if err != nil {
+		return err
+	}
+
+	print("before template execution")
+	print("html", content.getHTML())
+	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
+	print(outputFile, outputFile.Contents())
+	print("after exe")
+
+	print("STDOUT STDOUT")
+	err = tpl.Execute(os.Stdout, template.HTML(content.getHTML()))
+
+	return
+}
+
 // Will perform a regex check on the name of a file.
 // Returns ErrIncorrectHandler, as well as extra information about the cause of the failure.
 func checkHandlerMatch(regex, name string) (matched bool, err error) {
+	debug("regex", regex, "name", name)
 	matched, err = regexp.MatchString(regex, name)
 
 	if !matched {

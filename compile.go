@@ -5,7 +5,6 @@ import (
 	"io/fs"
 
 	"github.com/areon546/go-files/files"
-	"github.com/areon546/go-helpers/helpers"
 )
 
 var (
@@ -29,16 +28,12 @@ func compileTemplatesRec(path string) {
 	content := files.ReadDirectory(contentDir + "/" + path)
 
 	print()
-	print("path", path)
-	print(templateDir, templates)
-
-	print(contentDir, content)
-
-	print()
+	debug("path", path)
+	debug(templateDir, templates)
+	debug(contentDir, content)
 
 	for _, dirEntry := range content {
-		print()
-		print("entry: ", dirEntry)
+		debug("entry: ", dirEntry)
 
 		if dirEntry.IsDir() { // if is a directory, then hanlde it recursively
 			newPath := path + dirEntry.Name()
@@ -51,45 +46,30 @@ func compileTemplatesRec(path string) {
 
 func handleSubdirectory(path string, directory fs.DirEntry) {
 	name := directory.Name()
+	debug("path: ", path, "directory ", name)
 
-	print("path: ", path)
-	print("directory ", name)
-	print()
 	compileTemplatesRec(path)
 }
 
 func handleFile(path string, file fs.DirEntry) {
 	name := file.Name()
 
-	print("path: ", path)
-	print("file: ", name)
+	debug("path: ", path, "file: ", name)
 
-	// since it is a file, we want to:
-	// check for special cases
-
-	caseHandler, ok := templateCases[name]
-	// if the key
-	for _, handler := range templateCases {
+	// if the key, perform the related action
+	for key, handler := range templateCases {
+		debug("trying ", key)
 		err := handler.handleFile(path, file)
-		if !errors.Is(err, ErrIncorrectHandler) {
-			helpers.HandleExcept(err, ErrIncorrectHandler)
-		} else {
-			continue
+
+		incorrectHandler := errors.Is(err, ErrIncorrectHandler)
+		if incorrectHandler {
+			print(path, name, "unsuccessfully used ", key)
+		} else if !incorrectHandler {
+			handle(err, "incorrect handlers")
+
+			print(path, name, "successfuly used ", key)
+			print()
+			break
 		}
 	}
-
-	// If the key refers to a special case:
-	if ok {
-		// run it's special case handler
-		print("special case", name)
-		err := caseHandler.handleFile(path, file)
-
-		handle(err)
-	} else {
-		// compile it's template, and then write it to the output directory
-		compileFile(path, file)
-	}
-}
-
-func compileFile(path string, file fs.DirEntry) {
 }

@@ -2,6 +2,10 @@ run:
 	go build
 	./template-compiler
 
+tree:
+	tree templates/ content/ docs/
+
+
 test:
 	go test -cover
 

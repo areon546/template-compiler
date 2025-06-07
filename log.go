@@ -1,6 +1,8 @@
 package main
 
-import "github.com/areon546/go-files/log"
+import (
+	"github.com/areon546/go-files/log"
+)
 
 var (
 	debugger log.LogOutput = log.NewFileLogger("attemptLog.lg")
@@ -14,4 +16,9 @@ func debug(a ...any) {
 func print(a ...any) {
 	debug(a...)
 	output.Output(a...)
+}
+
+func closeLoggers() {
+	debugger.Close()
+	output.Close()
 }

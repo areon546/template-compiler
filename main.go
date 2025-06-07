@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+	"html/template"
+	"log"
 	"os"
 
 	"github.com/areon546/go-helpers/helpers"
@@ -16,6 +18,56 @@ var (
 )
 
 func main() {
+	run()
+	// test()
+
+	closeLoggers()
+}
+
+func test() {
+	const tpl = `
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>{{.Title}}</title>
+	</head>
+	<body>
+		{{range .Items}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+		{{.}}
+	</body>
+</html>`
+
+	check := func(err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	t, err := template.New("webpage").Parse(tpl)
+	check(err)
+
+	data := Web{
+		Title: "My page",
+		Items: []string{
+			"My photos",
+			"My blog",
+		},
+	}
+
+	err = t.Execute(os.Stdout, data)
+	check(err)
+}
+
+type Web struct {
+	Title string
+	Items []string
+}
+
+func (w Web) String() string {
+	return w.Title
+}
+
+func run() {
 	// check args
 
 	print("args: ", os.Args)
