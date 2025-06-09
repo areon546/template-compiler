@@ -6,6 +6,8 @@ github.com/areon546/go-files v0.0.0-20250602130103-34ef58f89ed4 h1:5oXplkHqwSsoa
 github.com/areon546/go-files v0.0.0-20250602130103-34ef58f89ed4/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
 github.com/areon546/go-files v0.0.0-20250607140004-cef497606439 h1:aH241Lq61anbq14BnWzlH/84NA5nJwpGrec21gPRWhE=
 github.com/areon546/go-files v0.0.0-20250607140004-cef497606439/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250607211020-9ecc41d72eaa h1:J9EySg6/9S9hkRD+dv7BVG1vtyXuCYf+RDbFiFSEakg=
+github.com/areon546/go-files v0.0.0-20250607211020-9ecc41d72eaa/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64 h1:I0ciJzP9w7YX4NOeLD2r222veNRc/8ndXF7PUVN0uTc=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64/go.mod h1:gI6Ckz5/vP+y2zJVQG8d4Ujoh+m48Z5NfTrhprF3agE=
 github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b h1:EY/KpStFl60qA17CptGXhwfZ+k1sFNJIUNR8DdbcuUk=

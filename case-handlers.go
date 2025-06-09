@@ -4,7 +4,6 @@ import (
 	"errors"
 	"html/template"
 	"io/fs"
-	"os"
 	"regexp"
 
 	"github.com/areon546/go-files/files"
@@ -89,8 +88,8 @@ func indexHandler(path, name string) error {
 // Create a file at the output directory with the same internal path and
 // Then populates the respective template with the content.
 func markdownHandler(path, name string) (err error) {
-	print("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
-	defer print("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
+	debug("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
+	defer debug("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
 
 	// open contents
 	contentFile := newContent(path, name)
@@ -106,7 +105,7 @@ func markdownHandler(path, name string) (err error) {
 
 	// parse template
 	templateName := templateDir + "/" + path + "template." + templateFileType
-	print("template name", templateName)
+	debug("template name", templateName)
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
 	return err
@@ -114,25 +113,25 @@ func markdownHandler(path, name string) (err error) {
 
 // ~~
 
-// TODO: fix template insertion, for some reason it doesn't insert into the template provided properly
 func insertIntoTemplate(templateName string, outputFile *files.File, content content) (err error) {
-	print("\n			attempting to insert into: ", outputFile.String())
-	defer print("			after template execution\n")
-	print(templateName, outputFile, content)
+	debug("\n			attempting to insert into: ", outputFile.String())
+	defer debug("			after template execution\n")
+	debug(templateName, outputFile, content)
 
 	tpl, err := template.ParseFiles(templateName)
+	debug("template parsed", err)
 	if err != nil {
 		return err
 	}
 
-	print("before template execution")
-	print("html", content.getHTML())
-	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
-	print(outputFile, outputFile.Contents())
-	print("after exe")
+	outputFile.ClearFile()
+	debug("file cleared")
 
-	print("STDOUT STDOUT")
-	err = tpl.Execute(os.Stdout, template.HTML(content.getHTML()))
+	debug("before template execution")
+	debug("html", content.getHTML())
+	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
+	debug(outputFile, outputFile.Contents())
+	defer debug("after exe")
 
 	return
 }
