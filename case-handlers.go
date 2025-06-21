@@ -29,6 +29,11 @@ func NewHandler(handlerFunction TemplateHandler, regex string) *handler {
 
 // NOTE: Path needs to ends with a /
 func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
+	// check if path ends with /
+	if path[len(path)-1] != '/' {
+		path += "/"
+	}
+
 	name := file.Name()
 	match, err := checkHandlerMatch(handler.regex, name)
 	debug("handler match", file, handler.regex, match)
