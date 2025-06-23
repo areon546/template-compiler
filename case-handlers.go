@@ -48,11 +48,9 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 func populateCaseHandlers() (handlerMap map[string]handler) {
 	handlerMap = map[string]handler{}
 
-	handlerMap["index.html"] = *NewHandler(indexHandler, "index.html")
-
-	handlerMap["markdown"] = *NewHandler(markdownHandler, "[.]*\\.md") // [.]*\.md initially
-
-	handlerMap["skipTemplate"] = *NewHandler(templateHandler, "template."+templateFileType)
+	handlerMap["index.html"] = *HandleIndex()
+	handlerMap["markdown"] = *HandleMarkdown()
+	handlerMap["skipTemplate"] = *HandleTemplateFile()
 
 	return handlerMap
 }
@@ -80,6 +78,10 @@ func CreateOutputFile(internalPathToFile string) (out *files.File) {
 
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
 
+func HandleIndex() *handler {
+	return NewHandler(indexHandler, "index.html")
+}
+
 func indexHandler(path, name string) error {
 	// copy file to exact relative path in output directory
 	pathToFile := "/" + path + name
@@ -89,6 +91,13 @@ func indexHandler(path, name string) error {
 	outputFile := CreateOutputFile(pathToFile)
 	_, err := outputFile.Write(openFile.Contents())
 	return err
+}
+
+func HandleMarkdown() *handler {
+	return NewHandler(markdownHandler, "[.]*\\.(?=md|markdown)") // [.]*\.(?=md|markdown) initially
+	// [.]*							- match any number of any characters
+	// \.  						 	- match a '.'
+	// (?=md|markdown)	- lookahead, match either 'md' or 'markdown'
 }
 
 // Reads the markdown file and converts it's content to HTML content in memory.
@@ -118,9 +127,27 @@ func markdownHandler(path, name string) (err error) {
 	return err
 }
 
-func templateHandler(path, name string) (err error) {
+func HandleTemplateFile() *handler {
+	return NewHandler(ignoreTemplateHandler, "template."+templateFileType)
+}
+
+// Made for the case of having the content and template directory as the same folder
+func ignoreTemplateHandler(path, name string) (err error) {
 	print(path, name, "being skipped")
 
+	return nil
+}
+
+func HandleStaticFile() *handler {
+	return NewHandler(copyOverFile, "any file ig")
+}
+
+// Made for the case of having all of your files in the content directory for ease of access
+func copyOverFile(path, name string) (err error) {
+	// TODO: make it copy over any file
+
+	debug("\n copying over file", path, name)
+	defer debug("\n finished copying over file", path, name)
 	return nil
 }
 
