@@ -52,6 +52,8 @@ func populateCaseHandlers() (handlerMap map[string]handler) {
 
 	handlerMap["markdown"] = *NewHandler(markdownHandler, "[.]*\\.md") // [.]*\.md initially
 
+	handlerMap["skipTemplate"] = *NewHandler(templateHandler, "template."+templateFileType)
+
 	return handlerMap
 }
 
@@ -114,6 +116,12 @@ func markdownHandler(path, name string) (err error) {
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
 	return err
+}
+
+func templateHandler(path, name string) (err error) {
+	print(path, name, "being skipped")
+
+	return nil
 }
 
 // ~~
