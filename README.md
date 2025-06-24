@@ -46,20 +46,7 @@ Things to note:
 
 - MD files are inserted into the corresponding template within the specified directory. EG a markdown file in the root, is placed into the template file at the root. A markdown file in subfolder10 will be inserted into the corresponding template in subfolder10.
 - HTML files are not inserted, they are simply copied straight over. If you want to have them inserted into template files, you can rename them to .md or .markdown files which support html regardless.
-- Any miscalaneous files will also
+- Any miscalaneous files will also be transferred over, unless they are in the specified blacklist.
 
-## Template System
-
-There are three fundamental directories that need to be specified.
-
-- `template` directory - specifies where the command will look for templates to use when compiling, see [templates](#templates)
-- `content` directory - specifies from where Markdown files will be read from, see [content](#content)
-- `output` directory - specifies where html files will be generated
-
-### Templates
-
-The template system looks at files with the `gohtml` extension.
-
-### Content
-
-The content displayed is based off of markdown files that are present in the `content` directory
+:> [!WARNING]
+> alsoa
