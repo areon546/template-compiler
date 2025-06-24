@@ -1,4 +1,52 @@
-# Go Pages
+# Template Compiler
+
+A simple template engine meant to be used both as a go package and as a terminal executeable / command.
+
+The command has various flags, primarily:
+
+- t : Used to specify the directory of the template directory.
+- c : Used to specify the directory of the content directory.
+- o : Used to specify the directory of the output directory, where compiled HTML files are written to.
+- s : Used to specify the file suffix for template files.
+- l : Used to specify the name of the log file. By default, leaving it blank means that no log file will be generated.
+
+You do not want to share any suffix namespace between your templates and content files, since there will be no compilation performed on the template files. The program does support having the template and content directories as the same folder, however if you want to call template files html, you must have the template and content folders be distinct.
+
+## System
+
+The system will read from a directory structure, and insert markdown files (after formatting them to HTML), into template files, and write to files in the output directory.
+
+Example:
+
+~~~markdown
+content
+- index.md
+- page2.md
+- htmlPage.html
+- subfolder/index.md 
+- static/global.css
+
+template
+- template.tpl
+- subfolder/template.tpl
+~~~
+
+The above will result in the following output directory.
+
+~~~markdown
+docs 
+- index.html
+- page2.html
+- htmlPage.html
+- subfolder/index.html
+- static/global.css
+~~~
+
+Things to note:
+
+- MD files are inserted into the corresponding template within the specified directory. EG a markdown file in the root, is placed into the template file at the root. A markdown file in subfolder10 will be inserted into the corresponding template in subfolder10.
+- HTML files are not inserted, they are simply copied straight over. If you want to have them inserted into template files, you can rename them to .md or .markdown files which support html regardless.
+- Any miscalaneous files will also
 
 ## Template System
 
@@ -15,36 +63,3 @@ The template system looks at files with the `gohtml` extension.
 ### Content
 
 The content displayed is based off of markdown files that are present in the `content` directory
-
-~~~md
-The command will read the files in the template directory specified (or `templates`) and will perform actions based on them.
-
-Special files:
-
-- a file named 'index.html' when found in the `content` directory will be copied over directly to the output directory.
-
-The program made here (currently unmade) will compile the pages in the `templates` folder and write to the `docs` folder.
-Template system will be made using [golang html templates](https://pkg.go.dev/html/template)
-
-One thing I have to test:
-Can you reference media outside of the docs folder in the docs folder, and still have it display said images?
-If so then I can safely delete any files within docs that aren't html pages.
-Otherwise I will have to be a bit smarter with my code.
-
-## Plans
-
-- the CLI will:
-  - read specified directories for:
-    - templates
-    - content
-  - it will generate a file for each and every file in `content`, using the template named after the folder
-  - it will have special names for specific types of templates that will be handled differently
-  - given two directories with the same internal directory structure, eg:
-   content -> bunnies
-   templates -> bunnies
-    - the program will therefore read the template directory, and look for special templates:
-    - types of special templates:
-      - index.html
-      -
-
-~~~
