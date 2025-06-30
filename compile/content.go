@@ -8,8 +8,8 @@ type content struct {
 	markdown *files.File
 }
 
-func newContent(path, name string) *content {
-	file := files.OpenFile(contentDir + "/" + path + name)
+func newContent(internalPath string) *content {
+	file := files.OpenFile(ContentPath(internalPath))
 	return &content{markdown: file}
 }
 

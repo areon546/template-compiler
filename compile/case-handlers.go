@@ -50,6 +50,7 @@ func populateCaseHandlers() (handlerMap map[string]handler) {
 	handlerMap["index.html"] = *HandleIndex()
 	handlerMap["markdown"] = *HandleMarkdown()
 	handlerMap["skipTemplate"] = *HandleTemplateFile()
+	handlerMap["static"] = *HandleStaticFile()
 
 	return handlerMap
 }
@@ -58,21 +59,10 @@ func AddCaseHandler(key string, newHandler handler) {
 	templateCases[key] = newHandler
 }
 
-func writeToOutputPath(out *files.File, content []byte) (err error) {
-	_, err = out.Write(content)
-	if err != nil {
-		debugCaseHandler("Wrote to file: ", out)
-	}
+func CreateOutputFile(internalPathToFile string) *files.File {
+	pathToWriteTo := OutputPath(internalPathToFile)
 
-	return
-}
-
-func CreateOutputFile(internalPathToFile string) (out *files.File) {
-	pathToWriteTo := directoryRoots["output"] + internalPathToFile
-
-	out = files.NewFile(pathToWriteTo)
-
-	return
+	return files.NewFile(pathToWriteTo)
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
@@ -107,16 +97,16 @@ func markdownHandler(path, name string) (err error) {
 	defer debugCaseHandler("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
 
 	// open contents
-	contentFile := newContent(path, name)
+	internalPathMD := path + name
+	contentFile := newContent(internalPathMD)
 
-	newName, err := replaceMDExtensionWith(name, "html")
+	internalOutPath, err := replaceMDExtensionWith(name, "html")
 	if err != nil {
 		return err
 	}
 
 	// creating new output file
-	pathToFile := "/" + path + newName
-	fileToWriteTo := CreateOutputFile(pathToFile)
+	fileToWriteTo := CreateOutputFile(internalOutPath)
 
 	// parse template
 	templateName := LookupTemplate(path)
@@ -132,13 +122,13 @@ func HandleTemplateFile() *handler {
 
 // Made for the case of having the content and template directory as the same folder
 func ignoreTemplateHandler(path, name string) (err error) {
-	print(path, name, "being skipped")
+	debugPrint(path, name, "being skipped")
 
 	return nil
 }
 
 func HandleStaticFile() *handler {
-	return NewHandler(copyOverFile, "any file ig")
+	return NewHandler(copyOverFile, "[.]*\\.css|jpeg")
 }
 
 // Made for the case of having all of your files in the content directory for ease of access
@@ -147,6 +137,20 @@ func copyOverFile(path, name string) (err error) {
 
 	debugCaseHandler("\n copying over file", path, name)
 	defer debugCaseHandler("\n finished copying over file", path, name)
+
+	debugPrint("path: ", path, ", name: ", name)
+
+	internalPath := path + name
+	debugPrint("Path to file", internalPath)
+
+	// read content file
+	contentFile := files.OpenFile(ContentPath(internalPath))
+	fileContents := contentFile.Contents()
+
+	outputFile := files.NewFile(OutputPath(internalPath))
+	outputFile.Append(fileContents)
+	outputFile.Close()
+
 	return nil
 }
 

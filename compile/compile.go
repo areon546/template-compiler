@@ -42,12 +42,11 @@ func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, temp
 // Crawls through the contents directory and compiles html files based on that.
 func compileTemplatesRec(path string) {
 	templates := files.ReadDirectory(templateDir + "/" + path)
-	content := files.ReadDirectory(contentDir + "/" + path)
+	content := files.ReadDirectory(ContentPath(path))
 
-	print()
-	debug("path", path)
-	debug(templateDir, templates)
-	debug(contentDir, content)
+	debugPrint("path", path)
+	debugPrint("Templates: ", templateDir, templates)
+	debugPrint("Content  : ", contentDir, content)
 
 	for _, dirEntry := range content {
 		debug("entry: ", dirEntry)
@@ -73,6 +72,8 @@ func handleSubdirectory(path string, directory fs.DirEntry) {
 
 func handleFile(path string, file fs.DirEntry) {
 	name := file.Name()
+	handlerUsed := false
+	fileName := path + name
 
 	debug("path: ", path, "file: ", name)
 
@@ -82,14 +83,19 @@ func handleFile(path string, file fs.DirEntry) {
 		err := handler.handleFile(path, file)
 
 		incorrectHandler := errors.Is(err, ErrIncorrectHandler)
-		if incorrectHandler {
-			print(path, name, "unsuccessfully used ", key)
-		} else if !incorrectHandler {
+		if !incorrectHandler {
 			handle(err, "incorrect handlers")
 
-			print(path, name, "successfuly used ", key)
-			print()
+			print(fileName, "successfuly used ", key)
+			handlerUsed = true
 			break
+
+		} else {
+			debugPrint(fileName, "unsuccessfully used ", key)
 		}
+	}
+
+	if !handlerUsed {
+		print(fileName, "unsuccessfully compiled ")
 	}
 }
