@@ -41,11 +41,14 @@ func compileTemplatesRec(path string) {
 		} else if !dirEntry.IsDir() { // if is a file, then check special cases and then handle it
 			handleFile(path, dirEntry)
 		}
+
+		debugNL()
 	}
 }
 
 func handleSubdirectory(path string, directory fs.DirEntry) {
 	name := directory.Name()
+	path = checkPath(path) // NOTE: for some reason, check path makes the logs much shorter, look into
 	debug("path: ", path, "directory ", name)
 
 	compileTemplatesRec(path)

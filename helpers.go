@@ -11,3 +11,11 @@ func format(s string, a ...any) string {
 func handle(err error, msg string) {
 	helpers.Handle(err)
 }
+
+func checkPath(path string) string {
+	if path[len(path)-1] != '/' {
+		path += "/"
+	}
+
+	return path
+}

@@ -1,13 +1,19 @@
 run:
 	go build
-	./template-compiler
+	./template-compiler -t content
+
+
+
+t:
+	go test -cover
+	./template-compiler -t test -c test -o test-out
+
+log:
+	make > attemptLog.lg
 
 tree:
 	tree templates/ content/ docs/
 
-
-test:
-	go test -cover
 
 coverage:
 	go test -coverprofile cover.out && go tool cover -html=cover.out

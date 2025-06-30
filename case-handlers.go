@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io/fs"
 	"regexp"
+	"strings"
 
 	"github.com/areon546/go-files/files"
 )
@@ -30,13 +31,11 @@ func NewHandler(handlerFunction TemplateHandler, regex string) *handler {
 // NOTE: Path needs to ends with a /
 func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	// check if path ends with /
-	if path[len(path)-1] != '/' {
-		path += "/"
-	}
+	path = checkPath(path)
 
 	name := file.Name()
 	match, err := checkHandlerMatch(handler.regex, name)
-	debug("handler match", file, handler.regex, match)
+	debugCaseHandler("handler match", file, handler.regex, match)
 
 	if err != nil {
 		return err
@@ -62,7 +61,7 @@ func AddCaseHandler(key string, newHandler handler) {
 func writeToOutputPath(out *files.File, content []byte) (err error) {
 	_, err = out.Write(content)
 	if err != nil {
-		debug("Wrote to file: ", out)
+		debugCaseHandler("Wrote to file: ", out)
 	}
 
 	return
@@ -86,7 +85,7 @@ func indexHandler(path, name string) error {
 	// copy file to exact relative path in output directory
 	pathToFile := "/" + path + name
 	openFile := files.OpenFile(directoryRoots["content"] + pathToFile)
-	debug("index handler: ", openFile, pathToFile)
+	debugCaseHandler("index handler: ", openFile, pathToFile)
 
 	outputFile := CreateOutputFile(pathToFile)
 	_, err := outputFile.Write(openFile.Contents())
@@ -94,18 +93,18 @@ func indexHandler(path, name string) error {
 }
 
 func HandleMarkdown() *handler {
-	return NewHandler(markdownHandler, "[.]*\\.(?=md|markdown)") // [.]*\.(?=md|markdown) initially
+	return NewHandler(markdownHandler, "[.]*\\.md") // [.]*\.md initially
 	// [.]*							- match any number of any characters
 	// \.  						 	- match a '.'
-	// (?=md|markdown)	- lookahead, match either 'md' or 'markdown'
+	// (?=md|markdown)	- lookahead, match either 'md' or 'markdown' - doesn't work properly so this idea is being set off for later
 }
 
 // Reads the markdown file and converts it's content to HTML content in memory.
 // Create a file at the output directory with the same internal path and
 // Then populates the respective template with the content.
 func markdownHandler(path, name string) (err error) {
-	debug("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
-	defer debug("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
+	debugCaseHandler("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
+	defer debugCaseHandler("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
 
 	// open contents
 	contentFile := newContent(path, name)
@@ -120,8 +119,8 @@ func markdownHandler(path, name string) (err error) {
 	fileToWriteTo := CreateOutputFile(pathToFile)
 
 	// parse template
-	templateName := templateDir + "/" + path + "template." + templateFileType
-	debug("template name", templateName)
+	templateName := LookupTemplate(path)
+	debugCaseHandler("template name", templateName)
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
 	return err
@@ -146,32 +145,32 @@ func HandleStaticFile() *handler {
 func copyOverFile(path, name string) (err error) {
 	// TODO: make it copy over any file
 
-	debug("\n copying over file", path, name)
-	defer debug("\n finished copying over file", path, name)
+	debugCaseHandler("\n copying over file", path, name)
+	defer debugCaseHandler("\n finished copying over file", path, name)
 	return nil
 }
 
 // ~~
 
 func insertIntoTemplate(templateName string, outputFile *files.File, content content) (err error) {
-	debug("\n			attempting to insert into: ", outputFile.String())
-	defer debug("			after template execution\n")
-	debug(templateName, outputFile, content)
+	debugCaseHandler("\n			attempting to insert into: ", outputFile.String())
+	defer debugCaseHandler("			after template execution\n")
+	debugCaseHandler(templateName, outputFile, content)
 
 	tpl, err := template.ParseFiles(templateName)
-	debug("template parsed", err)
+	debugCaseHandler("template parsed", err)
 	if err != nil {
 		return err
 	}
 
 	outputFile.ClearFile()
-	debug("file cleared")
+	debugCaseHandler("file cleared")
 
-	debug("before template execution")
-	debug("html", content.getHTML())
+	debugCaseHandler("before template execution")
+	debugCaseHandler("html", content.getHTML())
 	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
-	debug(outputFile, outputFile.Contents())
-	defer debug("after exe")
+	debugCaseHandler(outputFile, outputFile.Contents())
+	defer debugCaseHandler("after exe")
 
 	return
 }
@@ -179,7 +178,7 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 // Will perform a regex check on the name of a file.
 // Returns ErrIncorrectHandler, as well as extra information about the cause of the failure.
 func checkHandlerMatch(regex, name string) (matched bool, err error) {
-	debug("regex", regex, "name", name)
+	debugCaseHandler("regex", regex, "name", name)
 	matched, err = regexp.MatchString(regex, name)
 
 	if !matched {
@@ -188,4 +187,36 @@ func checkHandlerMatch(regex, name string) (matched bool, err error) {
 	}
 
 	return
+}
+
+func LookupTemplate(path string) string {
+	// TODO: update this to loop through the directories, and then through those directories, it would check at each level to look for the template
+	dirs, _ := files.SplitDirectories(path)
+	outPath := templateDir + "/"
+	print("LookupTemplate", dirs)
+
+	// dirs is a [] of strings, you can loop through that in a simple way
+
+	// TODO: improvement: Make it go backwards
+	for range dirs {
+
+		// join directories
+		// check for template
+		// check next
+
+		testPath := outPath + strings.Join(dirs, "/") + "/" + "template." + templateFileType
+
+		// test if this exists
+		exists, _ := files.FileExists(testPath)
+
+		print("LookupTemplate", path, testPath, exists)
+		if exists {
+			return testPath
+		} else {
+			dirs = dirs[0 : len(dirs)-1]
+		}
+
+	}
+
+	return templateDir + "/" + "template." + templateFileType
 }

@@ -8,6 +8,14 @@ github.com/areon546/go-files v0.0.0-20250607140004-cef497606439 h1:aH241Lq61anbq
 github.com/areon546/go-files v0.0.0-20250607140004-cef497606439/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
 github.com/areon546/go-files v0.0.0-20250607211020-9ecc41d72eaa h1:J9EySg6/9S9hkRD+dv7BVG1vtyXuCYf+RDbFiFSEakg=
 github.com/areon546/go-files v0.0.0-20250607211020-9ecc41d72eaa/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250630091847-9ee9f7451dce h1:bC3HunoS+jgr8yY+ywWwl876phkfrxf7+XzM9fClL4k=
+github.com/areon546/go-files v0.0.0-20250630091847-9ee9f7451dce/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250630093143-c381fafc09f4 h1:K0Q6hHELzRKnyJUXnftbkIpD3Ehhsw9gjZ63iPg3GcY=
+github.com/areon546/go-files v0.0.0-20250630093143-c381fafc09f4/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250630110839-117804a55fad h1:i56kzcINtfKcasqUWN0hd3ws/8YgUpT7hvNT+lb95Mg=
+github.com/areon546/go-files v0.0.0-20250630110839-117804a55fad/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250630171833-4dc8811b39ad h1:EbS72o92BAcuRX86T1cP3SyYYwKkaLs6s7F2Y2/dMzo=
+github.com/areon546/go-files v0.0.0-20250630171833-4dc8811b39ad/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64 h1:I0ciJzP9w7YX4NOeLD2r222veNRc/8ndXF7PUVN0uTc=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64/go.mod h1:gI6Ckz5/vP+y2zJVQG8d4Ujoh+m48Z5NfTrhprF3agE=
 github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b h1:EY/KpStFl60qA17CptGXhwfZ+k1sFNJIUNR8DdbcuUk=
