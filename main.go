@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"template-compiler/compile"
 
 	"github.com/areon546/go-helpers/helpers"
 )
@@ -20,14 +21,13 @@ func main() {
 	run()
 	// test()
 
-	closeLoggers()
-	print("loggers closed")
+	compile.CloseLoggers()
 }
 
 func run() {
 	// check args
 
-	print("args: ", os.Args)
+	helpers.Print("args: ", os.Args)
 
 	// declare flags to use
 
@@ -41,5 +41,5 @@ func run() {
 
 	helpers.Print(templateDir, contentDir, outputDir)
 
-	CompileTemplates()
+	compile.CompileTemplates(templateDir, contentDir, outputDir, templateFileType, logFileName)
 }

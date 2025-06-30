@@ -1,4 +1,4 @@
-package main
+package compile
 
 import (
 	"github.com/areon546/go-files/files"

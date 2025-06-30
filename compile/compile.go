@@ -1,4 +1,4 @@
-package main
+package compile
 
 import (
 	"errors"
@@ -8,13 +8,30 @@ import (
 )
 
 var (
-	templateCases  map[string]handler = populateCaseHandlers()
-	directoryRoots map[string]string  = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
+	// program options
+	templateDir      string
+	contentDir       string
+	outputDir        string
+	templateFileType string
+	logFileName      string
+
+	// misc
+	templateCases  map[string]handler
+	directoryRoots map[string]string
 )
 
 // ~~~~
 
-func CompileTemplates() {
+func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, templateSuff, logFName string) {
+	templateDir = templateDirectory
+	contentDir = contentDirectory
+	outputDir = outputDirectory
+	templateFileType = templateSuff
+	logFileName = logFName
+
+	templateCases = populateCaseHandlers()
+	directoryRoots = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
+
 	// read contents of template and content directories
 
 	// crawl the content files and directories

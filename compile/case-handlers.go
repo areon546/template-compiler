@@ -1,4 +1,4 @@
-package main
+package compile
 
 import (
 	"errors"
@@ -193,7 +193,7 @@ func LookupTemplate(path string) string {
 	// TODO: update this to loop through the directories, and then through those directories, it would check at each level to look for the template
 	dirs, _ := files.SplitDirectories(path)
 	outPath := templateDir + "/"
-	print("LookupTemplate", dirs)
+	debugPrint("LookupTemplate", dirs)
 
 	// dirs is a [] of strings, you can loop through that in a simple way
 
@@ -209,7 +209,7 @@ func LookupTemplate(path string) string {
 		// test if this exists
 		exists, _ := files.FileExists(testPath)
 
-		print("LookupTemplate", path, testPath, exists)
+		debugPrint("LookupTemplate", path, testPath, exists)
 		if exists {
 			return testPath
 		} else {

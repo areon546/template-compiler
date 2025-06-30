@@ -1,4 +1,4 @@
-package main
+package compile
 
 import (
 	"github.com/areon546/go-files/log"
@@ -22,7 +22,9 @@ func print(a ...any) {
 	output.Output(a...)
 }
 
-func closeLoggers() {
+func CloseLoggers() {
+	print("Loggers Closed")
+
 	debugger.Close()
 	output.Close()
 }
