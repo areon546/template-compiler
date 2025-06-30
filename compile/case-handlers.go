@@ -83,7 +83,7 @@ func indexHandler(path, name string) error {
 }
 
 func HandleMarkdown() *handler {
-	return NewHandler(markdownHandler, "[.]*\\.md") // [.]*\.md initially
+	return NewHandler(markdownHandler, "[.]*\\.md|markdown") // [.]*\.md initially
 	// [.]*							- match any number of any characters
 	// \.  						 	- match a '.'
 	// (?=md|markdown)	- lookahead, match either 'md' or 'markdown' - doesn't work properly so this idea is being set off for later
