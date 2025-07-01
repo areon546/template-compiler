@@ -128,7 +128,19 @@ func ignoreTemplateHandler(path, name string) (err error) {
 }
 
 func HandleStaticFile() *handler {
-	return NewHandler(copyOverFile, "[.]*\\.css|jpeg")
+	allowed := func() string {
+		acceptedSuffixes := make([]string, 0)
+
+		acceptedSuffixes = append(acceptedSuffixes, "css")
+		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp")
+		acceptedSuffixes = append(acceptedSuffixes, "js")
+
+		return strings.Join(acceptedSuffixes, "|")
+	}
+
+	anyFileName := "[.]*\\."
+	regex := anyFileName + allowed()
+	return NewHandler(copyOverFile, regex)
 }
 
 // Made for the case of having all of your files in the content directory for ease of access
