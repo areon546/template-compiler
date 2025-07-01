@@ -100,7 +100,7 @@ func markdownHandler(path, name string) (err error) {
 	internalPathMD := path + name
 	contentFile := newContent(internalPathMD)
 
-	internalOutPath, err := replaceMDExtensionWith(name, "html")
+	internalOutPath, err := replaceMDExtensionWith(internalPathMD, "html")
 	if err != nil {
 		return err
 	}
@@ -113,6 +113,8 @@ func markdownHandler(path, name string) (err error) {
 	debugCaseHandler("template name", templateName)
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
+
+	print(path, fileToWriteTo, internalOutPath)
 	return err
 }
 
@@ -206,14 +208,11 @@ func checkHandlerMatch(regex, name string) (matched bool, err error) {
 }
 
 func LookupTemplate(path string) string {
-	// TODO: update this to loop through the directories, and then through those directories, it would check at each level to look for the template
 	dirs, _ := files.SplitDirectories(path)
 	outPath := templateDir + "/"
 	debugPrint("LookupTemplate", dirs)
 
 	// dirs is a [] of strings, you can loop through that in a simple way
-
-	// TODO: improvement: Make it go backwards
 	for range dirs {
 
 		// join directories
