@@ -1,6 +1,5 @@
 ### Inconsistencies README vs Codebase
 
-- currently does not copy over all files
 - currently does not have a blacklist feature
 - log file has a default that writes to a file
 - log file currently doesn't write to set logfile
@@ -51,6 +50,10 @@ docs
 
 Things to note:
 
-- MD files are inserted into the corresponding template within the specified directory. EG a markdown file in the root, is placed into the template file at the root. A markdown file in subfolder10 will be inserted into the corresponding template in subfolder10.
-- HTML files are not inserted, they are simply copied straight over. If you want to have them inserted into template files, you can rename them to .md or .markdown files which support html regardless.
-- Any miscelaneous files will also be transferred over, unless they are in the specified blacklist.
+- MD files are inserted into the corresponding template within the specified directory.
+  - EG a markdown file in the root, is placed into the template file at the root.
+  - A markdown file in subfolder10 will be inserted into the corresponding template in subfolder10.
+- HTML files are not inserted, they are simply copied straight over.
+  - If you want to have them inserted into template files, you can rename them to .md or .markdown files.
+- Any miscaleneous files will also be transferred over, unless they are in the specified blacklist.
+  - Currently, the file types copied over by default are: jpg jpeg png webp css js
