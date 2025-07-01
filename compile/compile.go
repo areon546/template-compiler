@@ -18,6 +18,7 @@ var (
 	// misc
 	templateCases  map[string]handler
 	directoryRoots map[string]string
+	filesCompiled  = false
 )
 
 // ~~~~
@@ -37,6 +38,10 @@ func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, temp
 	// crawl the content files and directories
 	path := "./" // records the folder ofset within the content, template, and output directories
 	compileTemplatesRec(path)
+
+	if !filesCompiled {
+		print("No files compiled. Please try again. ")
+	}
 }
 
 // Crawls through the contents directory and compiles html files based on that.
@@ -88,6 +93,7 @@ func handleFile(path string, file fs.DirEntry) {
 
 			print(fileName, "successfuly used ", key)
 			handlerUsed = true
+			filesCompiled = true
 			break
 
 		} else {
