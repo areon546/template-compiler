@@ -47,7 +47,7 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 func populateCaseHandlers() (handlerMap map[string]handler) {
 	handlerMap = map[string]handler{}
 
-	handlerMap["index.html"] = *HandleIndex()
+	handlerMap["html"] = *HandleHTML()
 	handlerMap["markdown"] = *HandleMarkdown()
 	handlerMap["skipTemplate"] = *HandleTemplateFile()
 	handlerMap["static"] = *HandleStaticFile()
@@ -67,17 +67,39 @@ func CreateOutputFile(internalPathToFile string) *files.File {
 
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
 
-func HandleIndex() *handler {
-	return NewHandler(indexHandler, "index.html")
+func HandleHTML() *handler {
+	return NewHandler(copyOverFile, "[.]*\\.html")
 }
 
-func indexHandler(path, name string) error {
-	// copy file to exact relative path in output directory
-	pathToFile := "/" + path + name
-	openFile := files.OpenFile(directoryRoots["content"] + pathToFile)
-	debugCaseHandler("index handler: ", openFile, pathToFile)
+func HandleStaticFile() *handler {
+	allowed := func() string {
+		acceptedSuffixes := make([]string, 0)
 
-	outputFile := CreateOutputFile(pathToFile)
+		acceptedSuffixes = append(acceptedSuffixes, "css")
+		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp")
+		acceptedSuffixes = append(acceptedSuffixes, "js")
+
+		return strings.Join(acceptedSuffixes, "|")
+	}
+
+	anyFileName := "[.]*\\."
+	regex := anyFileName + allowed()
+	return NewHandler(copyOverFile, regex)
+}
+
+// Made for the case of having all of your files in the content directory for ease of access
+func copyOverFile(path, name string) error {
+	// TODO: make it copy over any file
+
+	debugCaseHandler("\n copying over file", path, name)
+	defer debugCaseHandler("\n finished copying over file", path, name)
+
+	internalPath := path + name
+	openFile := files.OpenFile(ContentPath(internalPath))
+	debugPrint("path: ", path, ", name: ", name)
+	debugPrint("Path to file", internalPath)
+
+	outputFile := CreateOutputFile(internalPath)
 	_, err := outputFile.Write(openFile.Contents())
 	return err
 }
@@ -129,45 +151,6 @@ func ignoreTemplateHandler(path, name string) (err error) {
 	return nil
 }
 
-func HandleStaticFile() *handler {
-	allowed := func() string {
-		acceptedSuffixes := make([]string, 0)
-
-		acceptedSuffixes = append(acceptedSuffixes, "css")
-		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp")
-		acceptedSuffixes = append(acceptedSuffixes, "js")
-
-		return strings.Join(acceptedSuffixes, "|")
-	}
-
-	anyFileName := "[.]*\\."
-	regex := anyFileName + allowed()
-	return NewHandler(copyOverFile, regex)
-}
-
-// Made for the case of having all of your files in the content directory for ease of access
-func copyOverFile(path, name string) (err error) {
-	// TODO: make it copy over any file
-
-	debugCaseHandler("\n copying over file", path, name)
-	defer debugCaseHandler("\n finished copying over file", path, name)
-
-	debugPrint("path: ", path, ", name: ", name)
-
-	internalPath := path + name
-	debugPrint("Path to file", internalPath)
-
-	// read content file
-	contentFile := files.OpenFile(ContentPath(internalPath))
-	fileContents := contentFile.Contents()
-
-	outputFile := files.NewFile(OutputPath(internalPath))
-	outputFile.Append(fileContents)
-	outputFile.Close()
-
-	return nil
-}
-
 // ~~
 
 func insertIntoTemplate(templateName string, outputFile *files.File, content content) (err error) {
@@ -184,6 +167,9 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 	outputFile.ClearFile()
 	debugCaseHandler("file cleared")
 
+	// Create missing directories.
+	MakeOutputDirectories(outputFile.Name())
+
 	debugCaseHandler("before template execution")
 	debugCaseHandler("html", content.getHTML())
 	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
@@ -191,6 +177,20 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 	defer debugCaseHandler("after exe")
 
 	return
+}
+
+func MakeOutputDirectories(outPath string) error {
+	// strip file from outPath
+
+	exists, _ := files.DirExists(outPath)
+
+	if exists {
+		return nil
+	} else {
+		err := files.MakeDirectory(outPath) // TODO: need to split out potential files from it.
+		print("ASDASDASD MakeOutputDirectories Error", err)
+		return err
+	}
 }
 
 // Will perform a regex check on the name of a file.
