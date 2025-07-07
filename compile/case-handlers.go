@@ -122,7 +122,7 @@ func markdownHandler(path, name string) (err error) {
 	internalPathMD := path + name
 	contentFile := newContent(internalPathMD)
 
-	internalOutPath, err := replaceMDExtensionWith(internalPathMD, "html")
+	internalOutPath, err := replaceExtensionWith(internalPathMD, "md", "html")
 	if err != nil {
 		return err
 	}

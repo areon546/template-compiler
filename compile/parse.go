@@ -21,12 +21,12 @@ func parseMarkdownToHtml(markdownContent []byte) (htmlContent []byte) {
 	return
 }
 
-func replaceMDExtensionWith(name, extension string) (newName string, err error) {
-	newName, cut := strings.CutSuffix(name, "md")
+func replaceExtensionWith(name, currentSuffix, newSuffix string) (newName string, err error) {
+	newName, cut := strings.CutSuffix(name, currentSuffix)
 	if !cut {
 		return "", ErrIncorrectFileType
 	} else {
-		newName += "html"
+		newName += newSuffix
 	}
 
 	return newName, nil

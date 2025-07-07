@@ -6,7 +6,7 @@
 
 # Template Compiler
 
-A simple template engine meant to be used both as a go package and as a terminal executable / command.
+A simple template system meant to be used both as a go package and as a terminal executable / command.
 
 The command has various flags, primarily:
 
