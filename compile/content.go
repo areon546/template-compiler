@@ -2,6 +2,7 @@ package compile
 
 import (
 	"github.com/areon546/go-files/files"
+	"github.com/areon546/go-helpers/helpers"
 )
 
 type content struct {
@@ -9,7 +10,12 @@ type content struct {
 }
 
 func newContent(internalPath string) *content {
-	file := files.OpenFile(ContentPath(internalPath))
+	file, err := files.OpenFile(ContentPath(internalPath))
+	if err != nil {
+		print("newContent err", err)
+		helpers.Handle(err)
+	}
+
 	return &content{markdown: file}
 }
 

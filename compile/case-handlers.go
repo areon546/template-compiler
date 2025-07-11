@@ -41,6 +41,12 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 		return err
 	}
 
+	// Create missing directories.
+	err = MakeOutputDirectories(file.Name())
+	if err != nil {
+		return err
+	}
+
 	return handler.handle(path, name)
 }
 
@@ -95,12 +101,16 @@ func copyOverFile(path, name string) error {
 	defer debugCaseHandler("\n finished copying over file", path, name)
 
 	internalPath := path + name
-	openFile := files.OpenFile(ContentPath(internalPath))
+	openFile, err := files.OpenFile(ContentPath(internalPath))
+	if err != nil {
+		return err
+	}
 	debugPrint("path: ", path, ", name: ", name)
 	debugPrint("Path to file", internalPath)
 
 	outputFile := CreateOutputFile(internalPath)
-	_, err := outputFile.Write(openFile.Contents())
+
+	_, err = outputFile.Write(openFile.Contents())
 	return err
 }
 
@@ -158,17 +168,16 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 	defer debugCaseHandler("			after template execution\n")
 	debugCaseHandler(templateName, outputFile, content)
 
+	// load template
 	tpl, err := template.ParseFiles(templateName)
 	debugCaseHandler("template parsed", err)
 	if err != nil {
 		return err
 	}
 
+	// clean outputFile
 	outputFile.ClearFile()
 	debugCaseHandler("file cleared")
-
-	// Create missing directories.
-	MakeOutputDirectories(outputFile.Name())
 
 	debugCaseHandler("before template execution")
 	debugCaseHandler("html", content.getHTML())
@@ -180,17 +189,11 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 }
 
 func MakeOutputDirectories(outPath string) error {
-	// strip file from outPath
+	dirs, _ := files.SplitDirectories(outPath)
+	dirs = files.CleanUpDirs(dirs)
+	finalDirPath := strings.Join(dirs, "/") + "/"
 
-	exists, _ := files.DirExists(outPath)
-
-	if exists {
-		return nil
-	} else {
-		err := files.MakeDirectory(outPath) // TODO: need to split out potential files from it.
-		print("ASDASDASD MakeOutputDirectories Error", err)
-		return err
-	}
+	return files.MakeDirectory(finalDirPath)
 }
 
 // Will perform a regex check on the name of a file.
