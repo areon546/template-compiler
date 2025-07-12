@@ -42,7 +42,7 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	}
 
 	// Create missing directories.
-	err = MakeOutputDirectories(file.Name())
+	err = MakeOutputDirectories(OutputPath(path))
 	if err != nil {
 		return err
 	}
@@ -57,6 +57,7 @@ func populateCaseHandlers() (handlerMap map[string]handler) {
 	handlerMap["markdown"] = *HandleMarkdown()
 	handlerMap["skipTemplate"] = *HandleTemplateFile()
 	handlerMap["static"] = *HandleStaticFile()
+	// handlerMap["nothing"] = *HandleNothing()
 
 	return handlerMap
 }
@@ -71,7 +72,24 @@ func CreateOutputFile(internalPathToFile string) *files.File {
 	return files.NewFile(pathToWriteTo)
 }
 
+func MakeOutputDirectories(outPath string) error {
+	dirs, _ := files.SplitDirectories(outPath)
+
+	dirs = files.CleanUpDirs(dirs)
+	finalDirPath := strings.Join(dirs, "/") + "/"
+
+	return files.MakeDirectory(finalDirPath)
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
+
+func HandleNothing() *handler {
+	return NewHandler(doNothing, "")
+}
+
+func doNothing(path, name string) error {
+	return nil
+}
 
 func HandleHTML() *handler {
 	return NewHandler(copyOverFile, "[.]*\\.html")
@@ -145,8 +163,6 @@ func markdownHandler(path, name string) (err error) {
 	debugCaseHandler("template name", templateName)
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
-
-	print(path, fileToWriteTo, internalOutPath)
 	return err
 }
 
@@ -164,9 +180,9 @@ func ignoreTemplateHandler(path, name string) (err error) {
 // ~~
 
 func insertIntoTemplate(templateName string, outputFile *files.File, content content) (err error) {
-	debugCaseHandler("\n			attempting to insert into: ", outputFile.String())
-	defer debugCaseHandler("			after template execution\n")
-	debugCaseHandler(templateName, outputFile, content)
+	debugCaseHandler("attempting to insert into: ", outputFile.String())
+	defer debugCaseHandler("after template execution\n")
+	debugCaseHandler(templateName, outputFile)
 
 	// load template
 	tpl, err := template.ParseFiles(templateName)
@@ -176,24 +192,13 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 	}
 
 	// clean outputFile
-	outputFile.ClearFile()
-	debugCaseHandler("file cleared")
+	err = outputFile.ClearFile()
+	debugCaseHandler("file cleared", err)
 
-	debugCaseHandler("before template execution")
-	debugCaseHandler("html", content.getHTML())
 	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
-	debugCaseHandler(outputFile, outputFile.Contents())
-	defer debugCaseHandler("after exe")
+	debugCaseHandler("Template inserted", err)
 
 	return
-}
-
-func MakeOutputDirectories(outPath string) error {
-	dirs, _ := files.SplitDirectories(outPath)
-	dirs = files.CleanUpDirs(dirs)
-	finalDirPath := strings.Join(dirs, "/") + "/"
-
-	return files.MakeDirectory(finalDirPath)
 }
 
 // Will perform a regex check on the name of a file.
