@@ -72,15 +72,6 @@ func CreateOutputFile(internalPathToFile string) *files.File {
 	return files.NewFile(pathToWriteTo)
 }
 
-func MakeOutputDirectories(outPath string) error {
-	dirs, _ := files.SplitDirectories(outPath)
-
-	dirs = files.CleanUpDirs(dirs)
-	finalDirPath := strings.Join(dirs, "/") + "/"
-
-	return files.MakeDirectory(finalDirPath)
-}
-
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
 
 func HandleNothing() *handler {

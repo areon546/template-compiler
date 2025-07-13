@@ -33,6 +33,13 @@ func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, temp
 	templateCases = populateCaseHandlers()
 	directoryRoots = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
 
+	err := makeRelevantDirectories()
+	if err != nil {
+		print("Some of the directories you referenced do not exist. ")
+		print(err)
+		return
+	}
+
 	// read contents of template and content directories
 
 	// crawl the content files and directories
