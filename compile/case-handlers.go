@@ -118,6 +118,7 @@ func copyOverFile(path, name string) error {
 	debugPrint("Path to file", internalPath)
 
 	outputFile := CreateOutputFile(internalPath)
+	outputFile.ClearFile()
 
 	_, err = outputFile.Write(openFile.Contents())
 	return err
