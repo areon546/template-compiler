@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"template-compiler/compile"
+	"template-compiler/compile/options"
 
 	"github.com/areon546/go-helpers/helpers"
 )
@@ -41,5 +42,6 @@ func run() {
 
 	helpers.Print(templateDir, contentDir, outputDir)
 
-	compile.CompileTemplates(templateDir, contentDir, outputDir, templateFileType, logFileName)
+	opt := options.NewOptions(templateDir, contentDir, outputDir, templateFileType, logFileName)
+	compile.CompileTemplates(opt)
 }

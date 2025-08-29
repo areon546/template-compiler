@@ -1,6 +1,8 @@
 package compile
 
 import (
+	"fmt"
+
 	"github.com/areon546/go-helpers/helpers"
 )
 
@@ -9,13 +11,14 @@ func format(s string, a ...any) string {
 }
 
 func handle(err error, msg string) {
+	fmt.Println(msg)
 	helpers.Handle(err)
 }
 
-func checkPath(path string) string {
-	if path[len(path)-1] != '/' {
-		path += "/"
-	}
+func OutputPath(internalPathToFile string) string {
+	return directoryRoots["output"] + "/" + internalPathToFile
+}
 
-	return path
+func ContentPath(internalPathToFile string) string {
+	return directoryRoots["content"] + "/" + internalPathToFile
 }

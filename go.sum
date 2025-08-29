@@ -34,7 +34,17 @@ github.com/areon546/go-files v0.0.0-20250711221429-0d5ff71ceae6 h1:izvGhxuTjF5Ad
 github.com/areon546/go-files v0.0.0-20250711221429-0d5ff71ceae6/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
 github.com/areon546/go-files v0.0.0-20250711224212-cf1790ced3d7 h1:ZzyYowSzsoOlEPNxmWWHGX6wnBCwkIDXFGog3FOKxvI=
 github.com/areon546/go-files v0.0.0-20250711224212-cf1790ced3d7/go.mod h1:GHYqNTtmtazTFotdG24+5rskSsd3tDScyQBDud/eMSg=
+github.com/areon546/go-files v0.0.0-20250821064606-ba7fe068329e h1:HgE4BRTcRw42pEHemDzHK3ZbjbrwliTyShcRfmF6L/g=
+github.com/areon546/go-files v0.0.0-20250821064606-ba7fe068329e/go.mod h1:92DiRBRMTS35iJnbyW0qPjYa4x/dAdlo+7SwsmBep2A=
+github.com/areon546/go-files v0.0.0-20250822173549-e2eb8da59e96 h1:qqlErDhWaQb+6zt9jOi35CcZKEE3KyDh+mu/Ouh+b5M=
+github.com/areon546/go-files v0.0.0-20250822173549-e2eb8da59e96/go.mod h1:92DiRBRMTS35iJnbyW0qPjYa4x/dAdlo+7SwsmBep2A=
+github.com/areon546/go-helpers v0.0.0-20250820120313-8a98e4eca6e5 h1:djA5yPn2QbiY/GLFkq+HPql6oFFFHbWnZe4Ys7Um25c=
+github.com/areon546/go-helpers v0.0.0-20250820120313-8a98e4eca6e5/go.mod h1:pN+CQkoKXPG5/CV6P19/T3T9xcsKCtdj38zabkFuspA=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64 h1:I0ciJzP9w7YX4NOeLD2r222veNRc/8ndXF7PUVN0uTc=
 github.com/areon546/go-helpers/helpers v0.0.0-20250523203919-096b7fa5dd64/go.mod h1:gI6Ckz5/vP+y2zJVQG8d4Ujoh+m48Z5NfTrhprF3agE=
+github.com/areon546/go-helpers/helpers v0.0.0-20250725224349-3881283c15e3 h1:Omv1ZAPP2wHtP4SJfGgWK6+giRkLvzBCtrF9rMPz2vc=
+github.com/areon546/go-helpers/helpers v0.0.0-20250725224349-3881283c15e3/go.mod h1:gI6Ckz5/vP+y2zJVQG8d4Ujoh+m48Z5NfTrhprF3agE=
 github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b h1:EY/KpStFl60qA17CptGXhwfZ+k1sFNJIUNR8DdbcuUk=
 github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=
+github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a h1:l7A0loSszR5zHd/qK53ZIHMO8b3bBSmENnQ6eKnUT0A=
+github.com/gomarkdown/markdown v0.0.0-20250810172220-2e2c11897d1a/go.mod h1:JDGcbDT52eL4fju3sZ4TeHGsQwhG9nbDV21aMyhwPoA=

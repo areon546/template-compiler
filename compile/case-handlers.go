@@ -2,10 +2,13 @@ package compile
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"regexp"
 	"strings"
+	"template-compiler/compile/dirs"
+	"template-compiler/compile/options"
 
 	"github.com/areon546/go-files/files"
 )
@@ -17,21 +20,22 @@ var (
 
 // A template handler will perform a certain actions on a specific type of file.
 // A handler returns ErrIncorrectHandler with information about the filename and the check requested by the handler.
-type TemplateHandler func(path, name string) error
+type TemplateHandler func(opt options.Options, path, name string) error
 
 type handler struct {
 	handle TemplateHandler
 	regex  string
+	opt    options.Options
 }
 
-func NewHandler(handlerFunction TemplateHandler, regex string) *handler {
-	return &handler{handle: handlerFunction, regex: regex}
+func NewHandler(handlerFunction TemplateHandler, regex string, opt options.Options) *handler {
+	return &handler{handle: handlerFunction, regex: regex, opt: opt}
 }
 
 // NOTE: Path needs to ends with a /
-func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
+func (handler handler) handleFile(intPath string, file fs.DirEntry) (err error) {
 	// check if path ends with /
-	path = checkPath(path)
+	intPath = dirs.CleanPath(intPath)
 
 	name := file.Name()
 	match, err := checkHandlerMatch(handler.regex, name)
@@ -42,22 +46,22 @@ func (handler handler) handleFile(path string, file fs.DirEntry) (err error) {
 	}
 
 	// Create missing directories.
-	err = MakeOutputDirectories(OutputPath(path))
+	err = dirs.MakeOutputDirectories(handler.opt, intPath)
 	if err != nil {
 		return err
 	}
 
-	return handler.handle(path, name)
+	return handler.handle(handler.opt, intPath, name)
 }
 
-func populateCaseHandlers() (handlerMap map[string]handler) {
+func populateCaseHandlers(opt options.Options) (handlerMap map[string]handler) {
 	handlerMap = map[string]handler{}
 
-	handlerMap["html"] = *HandleHTML()
-	handlerMap["markdown"] = *HandleMarkdown()
-	handlerMap["skipTemplate"] = *HandleTemplateFile()
-	handlerMap["static"] = *HandleStaticFile()
-	// handlerMap["nothing"] = *HandleNothing()
+	handlerMap["html"] = *HandleHTML(opt)
+	handlerMap["markdown"] = *HandleMarkdown(opt)
+	handlerMap["skipTemplate"] = *HandleTemplateFile(opt)
+	handlerMap["static"] = *HandleStaticFile(opt)
+	// handlerMap["nothing"] = *HandleNothing(opt)
 
 	return handlerMap
 }
@@ -74,19 +78,19 @@ func CreateOutputFile(internalPathToFile string) *files.File {
 
 // ~~~~~~~~~~~~~~~~~~~~~ Handlers
 
-func HandleNothing() *handler {
-	return NewHandler(doNothing, "")
+func HandleNothing(opt options.Options) *handler {
+	return NewHandler(doNothing, "", opt)
 }
 
-func doNothing(path, name string) error {
+func doNothing(opt options.Options, path, name string) error {
 	return nil
 }
 
-func HandleHTML() *handler {
-	return NewHandler(copyOverFile, "[.]*\\.html")
+func HandleHTML(opt options.Options) *handler {
+	return NewHandler(copyOverFile, "[.]*\\.html", opt)
 }
 
-func HandleStaticFile() *handler {
+func HandleStaticFile(opt options.Options) *handler {
 	allowed := func() string {
 		acceptedSuffixes := make([]string, 0)
 
@@ -99,17 +103,18 @@ func HandleStaticFile() *handler {
 
 	anyFileName := "[.]*\\."
 	regex := anyFileName + allowed()
-	return NewHandler(copyOverFile, regex)
+	return NewHandler(copyOverFile, regex, opt)
 }
 
 // Made for the case of having all of your files in the content directory for ease of access
-func copyOverFile(path, name string) error {
+func copyOverFile(opt options.Options, path, name string) error {
 	// TODO: make it copy over any file
 
 	debugCaseHandler("\n copying over file", path, name)
 	defer debugCaseHandler("\n finished copying over file", path, name)
 
 	internalPath := path + name
+	fmt.Println("Internal Path to ", name, "Path", path)
 	openFile, err := files.OpenFile(ContentPath(internalPath))
 	if err != nil {
 		return err
@@ -124,8 +129,8 @@ func copyOverFile(path, name string) error {
 	return err
 }
 
-func HandleMarkdown() *handler {
-	return NewHandler(markdownHandler, "[.]*\\.md|markdown") // [.]*\.md initially
+func HandleMarkdown(opt options.Options) *handler {
+	return NewHandler(markdownHandler, "[.]*\\.md|markdown", opt) // [.]*\.md initially
 	// [.]*							- match any number of any characters
 	// \.  						 	- match a '.'
 	// (?=md|markdown)	- lookahead, match either 'md' or 'markdown' - doesn't work properly so this idea is being set off for later
@@ -134,7 +139,7 @@ func HandleMarkdown() *handler {
 // Reads the markdown file and converts it's content to HTML content in memory.
 // Create a file at the output directory with the same internal path and
 // Then populates the respective template with the content.
-func markdownHandler(path, name string) (err error) {
+func markdownHandler(opt options.Options, path, name string) (err error) {
 	debugCaseHandler("\nmarkdown handling ~~~~~~~~~~~~~~~~~~~~~~")
 	defer debugCaseHandler("\nend of markdown handling ~~~~~~~~~~~~~~~~~\n")
 
@@ -151,19 +156,19 @@ func markdownHandler(path, name string) (err error) {
 	fileToWriteTo := CreateOutputFile(internalOutPath)
 
 	// parse template
-	templateName := LookupTemplate(path)
+	templateName := LookupTemplate(opt, path)
 	debugCaseHandler("template name", templateName)
 
 	err = insertIntoTemplate(templateName, fileToWriteTo, *contentFile)
 	return err
 }
 
-func HandleTemplateFile() *handler {
-	return NewHandler(ignoreTemplateHandler, "template."+templateFileType)
+func HandleTemplateFile(opt options.Options) *handler {
+	return NewHandler(ignoreTemplateHandler, "template."+opt.TemplateSuffix(), opt)
 }
 
 // Made for the case of having the content and template directory as the same folder
-func ignoreTemplateHandler(path, name string) (err error) {
+func ignoreTemplateHandler(opt options.Options, path, name string) (err error) {
 	debugPrint(path, name, "being skipped")
 
 	return nil
@@ -207,9 +212,9 @@ func checkHandlerMatch(regex, name string) (matched bool, err error) {
 	return
 }
 
-func LookupTemplate(path string) string {
+func LookupTemplate(opt options.Options, path string) string {
 	dirs, _ := files.SplitDirectories(path)
-	outPath := templateDir + "/"
+	outPath := opt.Template() + "/"
 	debugPrint("LookupTemplate", dirs)
 
 	// dirs is a [] of strings, you can loop through that in a simple way
@@ -219,7 +224,7 @@ func LookupTemplate(path string) string {
 		// check for template
 		// check next
 
-		testPath := outPath + strings.Join(dirs, "/") + "/" + "template." + templateFileType
+		testPath := outPath + strings.Join(dirs, "/") + "/" + "template." + opt.TemplateSuffix()
 
 		// test if this exists
 		exists, _ := files.FileExists(testPath)
@@ -233,5 +238,5 @@ func LookupTemplate(path string) string {
 
 	}
 
-	return templateDir + "/" + "template." + templateFileType
+	return opt.Template() + "/" + "template." + opt.TemplateSuffix()
 }

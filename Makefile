@@ -11,7 +11,7 @@ log:
 	make > attemptLog.lg
 
 tree:
-	tree templates/ content/ docs/
+	tree content/ docs/
 
 
 coverage:

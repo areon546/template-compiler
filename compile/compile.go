@@ -2,18 +2,17 @@ package compile
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
+	"template-compiler/compile/dirs"
+	"template-compiler/compile/options"
 
 	"github.com/areon546/go-files/files"
 )
 
 var (
 	// program options
-	templateDir      string
-	contentDir       string
-	outputDir        string
-	templateFileType string
-	logFileName      string
+	opt options.Options
 
 	// misc
 	templateCases  map[string]handler
@@ -23,17 +22,20 @@ var (
 
 // ~~~~
 
-func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, templateSuff, logFName string) {
-	templateDir = templateDirectory
-	contentDir = contentDirectory
-	outputDir = outputDirectory
-	templateFileType = templateSuff
-	logFileName = logFName
+func CompileTemplates(opt options.Options) {
+	fmt.Println(opt)
 
-	templateCases = populateCaseHandlers()
-	directoryRoots = map[string]string{"template": templateDir, "content": contentDir, "output": outputDir}
+	templateCases = populateCaseHandlers(opt)
+	directoryRoots = map[string]string{"template": opt.Template(), "content": opt.Content(), "output": opt.Output()}
 
-	err := makeRelevantDirectories()
+	err := dirs.RemoveOutputDirectory(opt)
+	if errors.Is(err, dirs.ErrOutIsContOrTemp) {
+		print("The program would otherwise delete the output directory if it went any further. ")
+		print(err)
+		return
+	}
+
+	err = dirs.MakeRelevantDirectories(opt)
 	if err != nil {
 		print("Some of the directories you referenced do not exist. ")
 		print(err)
@@ -44,7 +46,7 @@ func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, temp
 
 	// crawl the content files and directories
 	path := "./" // records the folder ofset within the content, template, and output directories
-	compileTemplatesRec(path)
+	compileTemplatesRec(opt, path)
 
 	if !filesCompiled {
 		print("No files compiled. Please try again. ")
@@ -52,37 +54,37 @@ func CompileTemplates(templateDirectory, contentDirectory, outputDirectory, temp
 }
 
 // Crawls through the contents directory and compiles html files based on that.
-func compileTemplatesRec(path string) {
-	templates := files.ReadDirectory(templateDir + "/" + path)
+func compileTemplatesRec(opt options.Options, path string) {
+	templates := files.ReadDirectory(opt.Template() + "/" + path)
 	content := files.ReadDirectory(ContentPath(path))
 
 	debugPrint("path", path)
-	debugPrint("Templates: ", templateDir, templates)
-	debugPrint("Content  : ", contentDir, content)
+	debugPrint("Templates: ", opt.Template(), templates)
+	debugPrint("Content  : ", opt.Content(), content)
 
 	for _, dirEntry := range content {
 		debug("entry: ", dirEntry)
 
 		if dirEntry.IsDir() { // if is a directory, then hanlde it recursively
 			newPath := path + dirEntry.Name()
-			handleSubdirectory(newPath, dirEntry)
+			handleSubdirectory(opt, newPath, dirEntry)
 		} else if !dirEntry.IsDir() { // if is a file, then check special cases and then handle it
-			handleFile(path, dirEntry)
+			handleFile(opt, path, dirEntry)
 		}
 
 		debugNL()
 	}
 }
 
-func handleSubdirectory(path string, directory fs.DirEntry) {
+func handleSubdirectory(opt options.Options, path string, directory fs.DirEntry) {
 	name := directory.Name()
-	path = checkPath(path) // NOTE: for some reason, check path makes the logs much shorter, look into
+	path = dirs.CleanPath(path) // NOTE: for some reason, check path makes the logs much shorter, look into
 	debug("path: ", path, "directory ", name)
 
-	compileTemplatesRec(path)
+	compileTemplatesRec(opt, path)
 }
 
-func handleFile(path string, file fs.DirEntry) {
+func handleFile(opt options.Options, path string, file fs.DirEntry) {
 	name := file.Name()
 	handlerUsed := false
 	fileName := path + name
