@@ -2,7 +2,6 @@ package compile
 
 import (
 	"errors"
-	"fmt"
 	"html/template"
 	"io/fs"
 	"regexp"
@@ -95,7 +94,7 @@ func HandleStaticFile(opt options.Options) *handler {
 		acceptedSuffixes := make([]string, 0)
 
 		acceptedSuffixes = append(acceptedSuffixes, "css")
-		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp")
+		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp|ico|svg")
 		acceptedSuffixes = append(acceptedSuffixes, "js")
 
 		return strings.Join(acceptedSuffixes, "|")
@@ -114,7 +113,6 @@ func copyOverFile(opt options.Options, path, name string) error {
 	defer debugCaseHandler("\n finished copying over file", path, name)
 
 	internalPath := path + name
-	fmt.Println("Internal Path to ", name, "Path", path)
 	openFile, err := files.OpenFile(ContentPath(internalPath))
 	if err != nil {
 		return err

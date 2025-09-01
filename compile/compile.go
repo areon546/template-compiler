@@ -98,7 +98,7 @@ func handleFile(opt options.Options, path string, file fs.DirEntry) {
 
 		incorrectHandler := errors.Is(err, ErrIncorrectHandler)
 		if !incorrectHandler {
-			handle(err, "incorrect handlers")
+			handle(err)
 
 			print(fileName, "successfuly used ", key)
 			handlerUsed = true
