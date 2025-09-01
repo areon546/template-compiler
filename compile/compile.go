@@ -28,7 +28,7 @@ func CompileTemplates(opt options.Options) {
 	templateCases = populateCaseHandlers(opt)
 	directoryRoots = map[string]string{"template": opt.Template(), "content": opt.Content(), "output": opt.Output()}
 
-	err := dirs.RemoveOutputDirectory(opt)
+	err := dirs.RemoveOutputDirectory(opt) // Purges output directory to remove artifacts.
 	if errors.Is(err, dirs.ErrOutIsContOrTemp) {
 		print("The program would otherwise delete the output directory if it went any further. ")
 		print(err)
