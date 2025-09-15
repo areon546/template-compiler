@@ -96,6 +96,7 @@ func HandleStaticFile(opt options.Options) *handler {
 		acceptedSuffixes = append(acceptedSuffixes, "css")
 		acceptedSuffixes = append(acceptedSuffixes, "jpg|jpeg|png|webp|ico|svg")
 		acceptedSuffixes = append(acceptedSuffixes, "js")
+		acceptedSuffixes = append(acceptedSuffixes, "txt")
 
 		return strings.Join(acceptedSuffixes, "|")
 	}
@@ -193,7 +194,7 @@ func insertIntoTemplate(templateName string, outputFile *files.File, content con
 	err = tpl.Execute(outputFile, template.HTML(content.getHTML()))
 	debugCaseHandler("Template inserted", err)
 
-	return
+	return err
 }
 
 // Will perform a regex check on the name of a file.
@@ -207,7 +208,7 @@ func checkHandlerMatch(regex, name string) (matched bool, err error) {
 		err = errors.Join(ErrIncorrectHandler, errMatch)
 	}
 
-	return
+	return matched, err
 }
 
 func LookupTemplate(opt options.Options, path string) string {
