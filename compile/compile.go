@@ -22,7 +22,8 @@ var (
 
 // ~~~~
 
-func CompileTemplates(opt options.Options) {
+func CompileTemplates(options options.Options) {
+	opt = options
 	fmt.Println(opt)
 
 	templateCases = populateCaseHandlers(opt)

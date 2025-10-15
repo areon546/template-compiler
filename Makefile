@@ -1,11 +1,19 @@
 run:
 	go build
-	./template-compiler -t content
-
+	make c
 
 t:
 	go test -cover
-	./template-compiler -t test -c test -o test-out
+	make c
+
+c:
+	template-compiler -t test -c test -o test-out
+
+bin:
+	go build
+	mv ./template-compiler ~/.local/bin/template-compiler
+
+
 
 log:
 	make > attemptLog.lg

@@ -17,7 +17,7 @@ var (
 	ErrIncorrectFileType error = ErrIncorrectHandler
 )
 
-// A template handler will perform a certain actions on a specific type of file.
+// TemplateHandler will perform a certain actions on a specific type of file.
 // A handler returns ErrIncorrectHandler with information about the filename and the check requested by the handler.
 type TemplateHandler func(opt options.Options, path, name string) error
 
